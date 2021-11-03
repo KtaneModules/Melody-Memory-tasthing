@@ -21,6 +21,7 @@ public class melodyMemory : MonoBehaviour
     public Color[] colors;
     public Color blankColor;
     public Color lightGray;
+    public TextMesh colorblindText;
 
     private keyInfo[][] keysInfo = new keyInfo[5][];
     private List<keyInfo> pressedKeys = new List<keyInfo>();
@@ -31,7 +32,7 @@ public class melodyMemory : MonoBehaviour
     private bool cantPress;
     private bool firstTime = true;
 
-    private static readonly string table = "ACBDABCDCABDCBADBACDBCADACDBADCBCADBCDABDACBDCABABDCADBCBADCBDACDABCDBACCBDACDBABCDABDCADCBADBCA";
+    private static readonly string table = "ACBDABCDBCADADCBCDABBADCBDACDBACCDBABDCADCBADBCA";
     private static readonly string[] instrumentNames = new string[12] { "accordion", "acoustic guitar", "cello", "electric guitar", "french horn", "organ", "piano", "sitar", "trumpet", "violin", "voice", "xylophone" };
     private static readonly string[] colorNames = new string[4] { "red", "yellow", "green", "blue" };
 
@@ -46,6 +47,7 @@ public class melodyMemory : MonoBehaviour
             key.OnInteract += delegate () { PressKey(key); return false; };
         playButton.OnInteract += delegate () { PressPlayButton(); return false; };
         recordButton.OnInteract += delegate () { PressRecordButton(); return false; };
+        colorblindText.gameObject.SetActive(GetComponent<KMColorblindMode>().ColorblindModeActive);
     }
 
     void Start()
@@ -75,6 +77,7 @@ public class melodyMemory : MonoBehaviour
             Debug.LogFormat("[Melody Memory #{0}] Instruments: {1}", moduleId, keysInfo[stage].Take(4).Select(x => instrumentNames[x.instrument]).Join(", "));
             Debug.LogFormat("[Melody Memory #{0}] The play button plays the note shared by button {1} ({2}) with the instrument {3}.", moduleId, sharedKey + 1, colorNames[keyColors[sharedKey]], instrumentNames[keysInfo[stage][4].instrument]);
             Debug.LogFormat("[Melody Memory #{0}] The letter from the table is {1}.", moduleId, letter);
+            colorblindText.text = keysInfo[stage].Take(4).Select(x => "RYGB"[x.color]).Join();
         }
         StartCoroutine(ColorKeys());
         switch (stage)
@@ -89,7 +92,7 @@ public class melodyMemory : MonoBehaviour
                         solution = FindColorPitch(keysInfo[0], 2, false);
                         break;
                     case 'C':
-                        solution = keysInfo[0].OrderBy(x => x.instrument).ElementAt(2).position;
+                        solution = keysInfo[0].Take(4).OrderBy(x => x.instrument).ElementAt(2).position;
                         break;
                     case 'D':
                         solution = 3;
@@ -106,7 +109,7 @@ public class melodyMemory : MonoBehaviour
                         solution = FindColorPitch(keysInfo[1], keysInfo[0].Select(x => x.color).ToArray()[FindColorPitch(keysInfo[0], 0, false)], true);
                         break;
                     case 'C':
-                        var differences = keysInfo[1].Select(x => Math.Abs(pressedKeys[0].instrument - x.instrument)).ToArray();
+                        var differences = keysInfo[stage].Take(4).Select(x => Math.Abs(x.instrument - pressedKeys[0].instrument)).ToArray();
                         solution = Array.IndexOf(differences, differences.Min());
                         break;
                     case 'D':
@@ -124,7 +127,7 @@ public class melodyMemory : MonoBehaviour
                         solution = FindColorPitch(keysInfo[2], pressedKeys[1].pitch, false);
                         break;
                     case 'C':
-                        var differences = keysInfo[1].Select(x => Math.Abs(keysInfo[1].First(xx => xx.color == 0).instrument - x.instrument)).ToArray();
+                        var differences = keysInfo[stage].Take(4).Select(x => Math.Abs(x.instrument - keysInfo[1][FindColorPitch(keysInfo[1], 0, true)].instrument)).ToArray();
                         solution = Array.IndexOf(differences, differences.Min());
                         break;
                     case 'D':
@@ -142,7 +145,7 @@ public class melodyMemory : MonoBehaviour
                         solution = FindColorPitch(keysInfo[3], 3 - keysInfo[2][FindColorPitch(keysInfo[2], 3, true)].pitch, false);
                         break;
                     case 'C':
-                        var differences = keysInfo[1].Select(x => Math.Abs(keysInfo[2].First(xx => xx.pitch == 1).instrument - x.instrument)).ToArray();
+                        var differences = keysInfo[stage].Take(4).Select(x => Math.Abs(x.instrument - keysInfo[2][FindColorPitch(keysInfo[2], 1, false)].instrument)).ToArray();
                         solution = Array.IndexOf(differences, differences.Min());
                         break;
                     case 'D':
@@ -160,7 +163,7 @@ public class melodyMemory : MonoBehaviour
                         solution = FindColorPitch(keysInfo[3], pressedKeys[2].color, true);
                         break;
                     case 'C':
-                        var differences = keysInfo[1].Select(x => Math.Abs(keysInfo[3][1].instrument - x.instrument)).ToArray();
+                        var differences = keysInfo[stage].Take(4).Select(x => Math.Abs(x.instrument - keysInfo[3][1].instrument)).ToArray();
                         solution = Array.IndexOf(differences, differences.Min());
                         break;
                     case 'D':
@@ -172,6 +175,7 @@ public class melodyMemory : MonoBehaviour
                 module.HandlePass();
                 moduleSolved = true;
                 Debug.LogFormat("[Melody Memory #{0}] Module solved!", moduleId);
+                colorblindText.text = "";
                 StartCoroutine(SolveAnimation());
                 break;
         }
