@@ -13,10 +13,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: melodyMemory
   title: Melody Memory
-  author: TasThing
+  author: TasThiluna
   description: "Music make you lose control!\r\n\r\nModule idea and implementation
-    by TasThing.\r\n\r\nManual HTML: https://ktane.timwi.de/HTML/Melody%20Memory.html\r\nManual
-    PDF: https://ktane.timwi.de/PDF/Melody%20Memory.pdf"
-  version: 2.1.1
+    by TasThiluna.\r\n\r\n[url=https://ktane.timwi.de/HTML/Melody%20Memory.html]Manual
+    HTML[/url]\r\n[url=https://ktane.timwi.de/PDF/Melody%20Memory.pdf]Manual PDF[/url]"
+  version: 2.1.2
   outputFolder: build
   previewImage: {fileID: 2800000, guid: 0e0282471c792dd43b3e41ef62f86a6a, type: 3}
